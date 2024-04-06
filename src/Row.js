@@ -1,97 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import './Row.css';
+import "./Row.css";
 
-import axios from './axios';
+import axios from "./axios";
 
 import Youtube from "react-youtube";
-import movieTrailer from 'movie-trailer';
+import movieTrailer from "movie-trailer";
 
 const base_url = "https://image.tmdb.org/t/p/original/";
 
-
 const Row = ({ title, fetchUrl, isLargeRow }) => {
+  const [movies, setMovies] = useState([]);
+  const [trailerUrl, setTrailerUrl] = useState("");
 
-    const [movies, setMovies] = useState([]);
-    const [trailerUrl, setTrailerUrl] = useState("");
+  // A snippet of code which runs based on a specific condition/variable
 
-    // A snippet of code which runs based on a specific condition/variable
+  useEffect(() => {
+    //if [], run once when the row loads, and don't run again
 
-    useEffect(() => {
-
-        //if [], run once when the row loads, and don't run again
-
-        async function fetchData() {
-            const request = await axios.get(fetchUrl);
-            setMovies(request.data.results);
-            // console.log(request);
-            return request;
-        }
-        fetchData();
-
-    }, [fetchUrl]);
-
-    // console.log(movies);
-    // console.table(movies);
-
-    const opts = {
-
-        height: "390",
-        width: "100%",
-        playerVars: {
-            autoPlay: 1,
-        },
-    };
-
-    const handleClick = (movie) => {
-
-        console.log(movie);
-
-        if (trailerUrl) {
-            setTrailerUrl('');
-        }
-        else {
-            movieTrailer(movie?.title || movie?.name || "")
-                .then(url => {
-                    //https://www.youtube.com/watch?v=HYJZ0CYw3hk
-
-                    const urlParams = new URLSearchParams(new URL(url).search); //to get everything after ? mark
-
-                    setTrailerUrl(urlParams.get('v'));
-
-                }).catch(error => console.log(error))
-        }
-
+    async function fetchData() {
+      const request = await axios.get(fetchUrl);
+      setMovies(request.data.results);
+      // console.log(request);
+      return request;
     }
+    fetchData();
+  }, [fetchUrl]);
 
+  // console.log(movies);
+  // console.table(movies);
 
-    return (
-        <div className="row">
-            <h2>{title}</h2>
+  const opts = {
+    height: "390",
+    width: "100%",
+    playerVars: {
+      autoPlay: 1,
+    },
+  };
 
-            {/* container -> posters */}
+  const handleClick = (movie) => {
+    console.log(movie);
 
-            <div className="row__posters">
-                {/* several row posters */}
+    if (trailerUrl) {
+      setTrailerUrl("");
+    } else {
+      movieTrailer(movie?.title || movie?.name || "")
+        .then((url) => {
 
-                {
-                    movies.map(movie => (
-                        <img
-                            key={movie.id}
-                            onClick={() => handleClick(movie)}
-                            className={`row__poster ${isLargeRow && "row__posterLarge"}`}
-                            src={`${base_url}${movie.poster_path}`}
-                            alt={movie.name} />
-                    ))
-                }
+          const urlParams = new URLSearchParams(new URL(url).search); //to get everything after ? mark
 
+          setTrailerUrl(urlParams.get("v"));
+        })
+        .catch((error) => console.log(error));
+    }
+  };
 
-            </div>
+  return (
+    <div className="row">
+      <h2>{title}</h2>
 
-            {trailerUrl && <Youtube videoId={trailerUrl} opts={opts} />}
+      {/* container -> posters */}
 
-        </div>
-    );
+      <div className="row__posters">
+        {/* several row posters */}
+
+        {movies.map((movie) => (
+          <img
+            key={movie.id}
+            onClick={() => handleClick(movie)}
+            className={`row__poster ${isLargeRow && "row__posterLarge"}`}
+            src={`${base_url}${movie.poster_path}`}
+            alt={movie.name}
+          />
+        ))}
+      </div>
+
+      {trailerUrl && <Youtube videoId={trailerUrl} opts={opts} />}
+    </div>
+  );
 };
 
 export default Row;

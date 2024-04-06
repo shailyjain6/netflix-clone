@@ -7,8 +7,5 @@ const instance = axios.create({
 });
 
 
-// intance.get('/foo-bar');
-
-//https://api.themoviedb.org/3/foo-bar
 
 export default instance;
